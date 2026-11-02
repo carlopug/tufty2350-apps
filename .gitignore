@@ -1,0 +1,23 @@
+# --- Personal files: real values stay local (Dropbox), *.example.* are tracked ---
+/secrets.py
+/multi_secrets.py
+/apps/badge/badge.json
+/apps/presentator/comandi.json
+/apps/presentator/chiave.txt
+# logos: only the example is published
+/apps/badge/assets/logos/*
+!/apps/badge/assets/logos/example.png
+!/apps/badge/assets/logos/README.txt
+
+# --- Private working notes (not published) ---
+/docs/superpowers/
+/presentator_dongle/HANDOFF-presentator.md
+/_temp/
+/.superpowers/
+
+# --- Build / cache ---
+__pycache__/
+*.pyc
+
+# Local publication config (contains the personal terms to search for)
+/.pubblica.json
