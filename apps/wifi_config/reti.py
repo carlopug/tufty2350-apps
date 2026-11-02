@@ -42,7 +42,7 @@ def _leggi(path):
     ns = {}
     try:
         exec(src, ns)
-    except Exception:
+    except Exception:  # noqa: BLE001 - a broken multi_secrets.py is reported, never fatal
         return None
     return {k: v for k, v in ns.items() if not k.startswith("__")}
 

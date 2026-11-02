@@ -1,4 +1,6 @@
 # Vendored from https://github.com/JASchilz/uQR (BSD-3-Clause).
+# Third-party code kept close to upstream, so its own style is not linted:
+# ruff: noqa: Q000, Q003, B007, E731, ARG005, RET505, RSE102, W291
 # See uQR_LICENSE.txt. The import fallback below supports newer MicroPython.
 try:
     import re
@@ -933,7 +935,7 @@ def create_data(version, error_correction, data_list):
         bit_limit += block.data_count * 8
 
     if len(buffer) > bit_limit:
-        raise exceptions.DataOverflowError(
+        raise DataOverflowError(
             "Code length overflow. Data size (%s) > size available (%s)" %
             (len(buffer), bit_limit))
 

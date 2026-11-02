@@ -30,7 +30,7 @@ def elabora_scansione(grezza, note):
         if isinstance(ssid, bytes):
             try:
                 ssid = ssid.decode("utf-8")
-            except Exception:
+            except Exception:  # noqa: BLE001 - skip networks with an undecodable name
                 continue
         if not ssid:
             continue
@@ -64,7 +64,7 @@ class Collegamento:
                 self.wlan.connect(ssid, password)
             else:
                 self.wlan.connect(ssid)
-        except Exception:
+        except Exception:  # noqa: BLE001 - reported as a failed connection
             self._errore = True
 
     def _ferma(self, esito):
@@ -72,7 +72,7 @@ class Collegamento:
         # altrimenti la scansione successiva non trova nulla
         try:
             self.wlan.disconnect()
-        except Exception:
+        except Exception:  # noqa: BLE001 - best effort
             pass
         return esito
 
@@ -96,7 +96,7 @@ class Collegamento:
     def ip(self):
         try:
             return self.wlan.ifconfig()[0]
-        except Exception:
+        except Exception:  # noqa: BLE001 - no IP yet
             return None
 
     def scansiona(self):
@@ -105,6 +105,6 @@ class Collegamento:
     def scollega(self):
         try:
             self.wlan.disconnect()
-        except Exception:
+        except Exception:  # noqa: BLE001 - best effort
             pass
         self.ssid = None

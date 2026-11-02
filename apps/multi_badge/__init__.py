@@ -4,8 +4,8 @@ import math
 import json
 import gc
 
-sys.path.insert(0, "/system/apps/badge")
-os.chdir("/system/apps/badge")
+sys.path.insert(0, "/system/apps/multi_badge")
+os.chdir("/system/apps/multi_badge")
 
 # The Badge app targets Tufty 2350's native 320x240 framebuffer.
 badge.mode(HIRES | VSYNC)
@@ -268,7 +268,7 @@ def build_vcard(config):
 
 
 QR_CACHE_ROOT = "/cache"
-QR_CACHE_DIR = "/cache/badge"
+QR_CACHE_DIR = "/cache/multi_badge"
 QR_CACHE_MAGIC = b"BQR1"
 QR_CACHE_HEADER_SIZE = 9
 
@@ -445,7 +445,7 @@ def make_qr_image(payload, cache_key):
             matrix_size, packed = cached
 
         return render_qr_image(matrix_size, packed)
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001 - show the badge without the QR rather than crash
         print("Unable to prepare vCard QR code:", error)
         gc.collect()
         return None

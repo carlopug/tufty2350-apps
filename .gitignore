@@ -1,13 +1,13 @@
 # --- Personal files: real values stay local (Dropbox), *.example.* are tracked ---
 /secrets.py
 /multi_secrets.py
-/apps/badge/badge.json
+/apps/multi_badge/badge.json
 /apps/presentator/comandi.json
 /apps/presentator/chiave.txt
 # logos: only the example is published
-/apps/badge/assets/logos/*
-!/apps/badge/assets/logos/example.png
-!/apps/badge/assets/logos/README.txt
+/apps/multi_badge/assets/logos/*
+!/apps/multi_badge/assets/logos/example.png
+!/apps/multi_badge/assets/logos/README.txt
 
 # --- Private working notes (not published) ---
 /docs/superpowers/

@@ -70,7 +70,7 @@ def _layout_italiano():
         m[chr(ord("a") + i)] = (0, 0x04 + i)
         m[chr(ord("A") + i)] = (SHIFT, 0x04 + i)
     cifre = "1234567890"
-    shift_cifre = "!\"£$%&/()="
+    shift_cifre = '!"£$%&/()='
     for i in range(10):
         m[cifre[i]] = (0, 0x1E + i)
         m[shift_cifre[i]] = (SHIFT, 0x1E + i)
@@ -270,11 +270,11 @@ def carica(testo):
     except ValueError:
         return [], "JSON non valido"
     if not isinstance(dati, dict) or not isinstance(dati.get("gruppi"), list):
-        return [], "manca la lista \"gruppi\""
+        return [], 'manca la lista "gruppi"'
     gruppi = []
     for gi, g in enumerate(dati["gruppi"], 1):
         if not isinstance(g, dict) or not isinstance(g.get("comandi"), list):
-            return [], "gruppo %d: manca la lista \"comandi\"" % gi
+            return [], 'gruppo %d: manca la lista "comandi"' % gi
         nome_g = g.get("nome") if isinstance(g.get("nome"), str) else "Gruppo %d" % gi
         voci = []
         for ci, c in enumerate(g["comandi"], 1):
@@ -386,11 +386,11 @@ class _ParserJson:
             try:
                 float(parola)
             except ValueError:
-                raise _Fine(inizio, "valore non valido (testi tra \"virgolette\")")
+                raise _Fine(inizio, 'valore non valido (testi tra "virgolette")')  # noqa: B904
 
     def stringa(self):
         if self.car() != '"':
-            raise _Fine(self.i, "atteso un testo tra \"virgolette\"")
+            raise _Fine(self.i, 'atteso un testo tra "virgolette"')
         self.i += 1
         while self.i < len(self.t):
             c = self.t[self.i]

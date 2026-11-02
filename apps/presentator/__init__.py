@@ -150,7 +150,7 @@ class Link:
         self.ble.config(gap_name=DEVICE_NAME)
         try:
             self.ble.config(mtu=247)
-        except Exception:
+        except Exception:  # noqa: BLE001 - optional, not every firmware build supports it
             pass  # resta la MTU minima (20 byte utili per notify)
         self.ble.irq(self._irq)
         ((self.cmd_handle, self.status_handle),) = self.ble.gatts_register_services((
@@ -272,7 +272,7 @@ class Link:
     def close(self):
         try:
             self.ble.active(False)
-        except Exception:
+        except Exception:  # noqa: BLE001 - best effort on exit
             pass
 
 

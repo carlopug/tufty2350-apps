@@ -76,7 +76,7 @@ def mostra(righe, colore, poi):
 
 
 def ssid_note():
-    return set(n["ssid"] for n in note)
+    return {n["ssid"] for n in note}
 
 
 def password_nota(ssid):
@@ -147,7 +147,7 @@ def schermata_danneggiato(ev):
         vai("MENU")
 
 
-def schermata_prova_note(ev):
+def schermata_prova_note(_ev):
     ora = badge.ticks
     if S["tentativo"] is None:
         if not S["coda"]:
@@ -219,7 +219,7 @@ def esci_aggiunta():
         vai("NESSUNA")
 
 
-def schermata_scansione(ev):
+def schermata_scansione(_ev):
     ui.titolo("Aggiungi rete")
     ui.centrato("Ricerca reti WiFi...", 80)
     ui.spinner(ui.W // 2, 135, badge.ticks)
@@ -230,7 +230,7 @@ def schermata_scansione(ev):
         coll.scollega()  # nessun tentativo rimasto attivo nel chip durante la scansione
     try:
         grezza = coll.scansiona()
-    except Exception:
+    except Exception:  # noqa: BLE001 - a failed scan shows an empty list
         grezza = []
     S["elenco"] = rete.elabora_scansione(grezza, ssid_note())
     vai("ELENCO")
@@ -312,7 +312,7 @@ def prova_nuova(ssid, password):
     vai("PROVA_NUOVA")
 
 
-def schermata_prova_nuova(ev):
+def schermata_prova_nuova(_ev):
     ora = badge.ticks
     ssid, password = S["tentativo"]
     if not S["avviato"]:
@@ -348,7 +348,7 @@ def schermata_menu(ev):
         screen.text("IP {}".format(coll.ip() or "?"), 46, 66)
         try:
             ui.segnale(ui.W - 40, 56, rete.livello(coll.wlan.status("rssi")))
-        except Exception:
+        except Exception:  # noqa: BLE001 - the signal icon is optional
             pass
         voci = ["Cambia rete"]
     else:
@@ -387,9 +387,9 @@ def schermata_scegli_nota(ev):
             if not (S["connessa"] and coll.connesso()):
                 coll.scollega()
             try:
-                S["visibili"] = dict((r["ssid"], r["livello"]) for r in
-                                     rete.elabora_scansione(coll.scansiona(), ssid_note()))
-            except Exception:
+                S["visibili"] = {r["ssid"]: r["livello"] for r in
+                                     rete.elabora_scansione(coll.scansiona(), ssid_note())}
+            except Exception:  # noqa: BLE001 - a failed scan shows no signal levels
                 S["visibili"] = {}
             S["scansione_fatta"] = True
         S["avviato"] = True
@@ -430,7 +430,7 @@ def schermata_scegli_nota(ev):
             vai("PROVA_CAMBIO")
 
 
-def schermata_prova_cambio(ev):
+def schermata_prova_cambio(_ev):
     ora = badge.ticks
     ssid, password = S["tentativo"]
     if not S["avviato"]:
@@ -450,7 +450,7 @@ def schermata_prova_cambio(ev):
         mostra([ui.tronca("Connessione a {}".format(ssid), 270), "non riuscita"], ui.ERR, poi)
 
 
-def schermata_ritorno(ev):
+def schermata_ritorno(_ev):
     ora = badge.ticks
     ssid, password = S["tentativo"]
     if not S["avviato"]:
@@ -542,7 +542,7 @@ def schermata_messaggio(ev):
         vai(poi)
 
 
-def schermata_non_connesso(ev):
+def schermata_non_connesso(_ev):
     ui.titolo("WiFi Config")
     ui.pannello(10, 60, ui.W - 20, 70, 8)
     ui.pallino(30, 95, ui.ERR)
