@@ -8,6 +8,11 @@ presentation remote.
 Everything was built as a maker side project and used day to day at school and at work.
 The on-screen texts are in **Italian**, and so are some code comments. The docs are in English.
 
+> **Featured on the Pimoroni blog:**
+> [Tufty 2350 Powers Teacher's Presentation Controller](https://blog.pimoroni.com/tufty-2350-powers-teachers-presentation-controller/).
+> `multi_badge`, `presentator` and `wifi_config` are also in Pimoroni's official
+> [badgeware-contrib](https://github.com/pimoroni/badgeware-contrib/tree/main/Tufty) collection.
+
 | App | What it does |
 |---|---|
 | [`multi_badge`](#multi_badge) | Multi-profile name badge. The back shows a vCard QR code for sharing your contact details. |
