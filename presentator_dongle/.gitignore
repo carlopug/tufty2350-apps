@@ -3,3 +3,4 @@
 src/chiave.h
 tools/vettori.h
 platformio_local.ini
+tools/prova_tastiera_*.txt

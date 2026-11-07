@@ -2,7 +2,9 @@
 
     PYTHONIOENCODING=utf-8 python prova_simulatore.py CARTELLA_SCREENSHOT [scenario ...]
 
-Senza scenari li prova tutti. Per ogni schermata salva un PNG del badge.
+Senza scenari li prova tutti, in inglese (tastiera US, comandi.example.json)
+e in italiano (tastiera IT, comandi.json personale se c'e'). Per ogni
+schermata salva un PNG del badge, con la lingua nel nome del file.
 Serve Playwright per Python con Chromium (gia' presente su questo PC);
 lanciare senza "python -I", altrimenti il pacchetto utente non si trova.
 Il Bluetooth e' simulato da sim_bluetooth.py (dongle finto).
@@ -16,7 +18,10 @@ from playwright.sync_api import sync_playwright
 
 QUI = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.normpath(os.path.join(QUI, "..", "..", "..", "apps", "presentator"))
-FILE_APP = ["__init__.py", "comandi.py", "protocollo.py", "comandi.json", "chiave.txt"]
+FILE_APP = ["__init__.py", "comandi.py", "protocollo.py", "lingua.py", "comandi.json", "chiave.txt",
+            "lang/en.json", "lang/it.json"]
+# lingua dell'interfaccia -> layout della tastiera e file dei comandi usati
+LINGUE = {"en": ("us", "comandi.example.json"), "it": ("it", "comandi.json")}
 
 
 def percorsi_app():
@@ -52,14 +57,21 @@ try:
     os.mkdir(D)
 except OSError:
     pass
-for f in ("__init__.py", "comandi.py", "protocollo.py", "comandi.json", "chiave.txt", "sim_bluetooth.py"):
+try:
+    os.mkdir(D + "/lang")
+except OSError:
+    pass
+for f in ("__init__.py", "comandi.py", "protocollo.py", "lingua.py", "comandi.json", "chiave.txt",
+          "sim_bluetooth.py", "en.json", "it.json"):
     if f in os.listdir("/"):
+        dest = D + ("/lang/" if f in ("en.json", "it.json") else "/") + f
         try:
-            os.remove(D + "/" + f)
+            os.remove(dest)
         except OSError:
             pass
-        os.rename("/" + f, D + "/" + f)
+        os.rename("/" + f, dest)
 os.chdir(D)
+State.save("presentator", {"lingua": %(lingua)r, "layout": %(layout)r})
 if D not in sys.path:
     sys.path.insert(0, D)
 if "comandi_ok.json" not in os.listdir():
@@ -75,7 +87,7 @@ if %(senza_chiave)r:
         os.rename("chiave.txt", "chiave.bak")
 elif "chiave.bak" in os.listdir():
     os.rename("chiave.bak", "chiave.txt")
-for m in ("comandi", "protocollo", "bluetooth", "sim_bluetooth"):
+for m in ("comandi", "protocollo", "lingua", "bluetooth", "sim_bluetooth"):
     sys.modules.pop(m, None)
 import sim_bluetooth
 sim_bluetooth.SCENARIO = %(scenario)r
@@ -137,9 +149,17 @@ class Sim:
         self.pg = pg
         self.out = out
         self.n = 0
+        self.lingua = "en"
 
     def avvia(self, scenario="ok", json=None, senza_chiave=False):
-        codice = RUNNER % {"scenario": scenario, "json": json, "senza_chiave": senza_chiave}
+        layout, file_comandi = LINGUE[self.lingua]
+        if json is None:
+            if not os.path.exists(os.path.join(APP, file_comandi)):
+                file_comandi = "comandi.example.json"  # comandi.json e' personale
+            with open(os.path.join(APP, file_comandi), encoding="utf-8") as f:
+                json = f.read()
+        codice = RUNNER % {"scenario": scenario, "json": json, "senza_chiave": senza_chiave,
+                           "lingua": self.lingua, "layout": layout}
         # F5 nell'editor esegue (il pulsante Run cambia icona dopo il primo avvio)
         self.pg.evaluate("c => { const e = monaco.editor.getEditors()[0]; e.setValue(c); e.focus(); }", codice)
         self.pg.keyboard.press("F5")
@@ -167,7 +187,7 @@ class Sim:
     def foto(self, nome, attesa=300):
         self.pg.wait_for_timeout(attesa)
         self.n += 1
-        percorso = os.path.join(self.out, "%02d_%s.png" % (self.n, nome))
+        percorso = os.path.join(self.out, "%s_%02d_%s.png" % (self.lingua, self.n, nome))
         url = self.pg.evaluate("() => window.__fbPng(2)")
         with open(percorso, "wb") as f:
             f.write(base64.b64decode(url.split(",")[1]))
@@ -226,6 +246,23 @@ def scenario_ok(s):
     s.foto("sito_fatto", 2600)
 
 
+def scenario_impostazioni(s):
+    s.avvia("ok")
+    s.tasto(GIU, 2)
+    s.foto("menu_impostazioni")
+    s.tasto(B)
+    s.foto("impostazioni")
+    s.tasto(B)
+    s.foto("impostazioni_lingua_cambiata")
+    s.tasto(B)  # torna alla lingua di partenza
+    s.tasto(GIU)
+    s.foto("impostazioni_tastiera")
+    s.tasto(B)
+    s.foto("impostazioni_tastiera_cambiata")
+    s.tasto(A)
+    s.foto("menu_dopo_impostazioni")
+
+
 def scenario_stati(s):
     for scen, nome in (("nodongle", "attesa_dongle"), ("chiave", "chiave_diversa"),
                        ("versione", "versione_diversa"), ("nousb", "usb_non_pronta")):
@@ -259,7 +296,8 @@ def scenario_json(s):
     s.foto("voci_errate_campo")
 
 
-SCENARI = {"ok": scenario_ok, "stati": scenario_stati, "json": scenario_json}
+SCENARI = {"ok": scenario_ok, "impostazioni": scenario_impostazioni,
+           "stati": scenario_stati, "json": scenario_json}
 
 
 def main():
@@ -276,6 +314,8 @@ def main():
         pg.wait_for_timeout(3000)
         pg.set_input_files("#fp-upload-input",
                            percorsi_app() + [os.path.join(QUI, "sim_bluetooth.py")])
+        # tutti gli scenari in ogni lingua (i file in lang/ arrivano nella radice
+        # del simulatore e il runner li sposta in /presentator/lang)
         pg.wait_for_timeout(2000)
         s = Sim(pg, out)
         # zona del badge: area a destra sopra il pannello OUTPUT
@@ -285,12 +325,15 @@ def main():
         # il primo avvio dopo l'upload non trova ancora i moduli appena
         # spostati in /presentator: un giro a vuoto prima degli scenari
         s.avvia("ok")
-        for nome in scelti:
-            print("scenario", nome)
-            SCENARI[nome](s)
-            errori = [r for r in s.uscita().splitlines() if "Error" in r or "Traceback" in r]
-            if errori:
-                print("   ERRORI NELL'OUTPUT:", errori)
+        for lingua in LINGUE:
+            s.lingua = lingua
+            s.n = 0
+            for nome in scelti:
+                print("scenario", lingua, nome)
+                SCENARI[nome](s)
+                errori = [r for r in s.uscita().splitlines() if "Error" in r or "Traceback" in r]
+                if errori:
+                    print("   ERRORI NELL'OUTPUT:", errori)
         print(s.uscita()[-1500:])
         b.close()
 

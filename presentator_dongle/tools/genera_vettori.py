@@ -19,6 +19,8 @@ sys.path.insert(0, os.path.join(QUI, "..", "..", "apps", "presentator"))
 import protocollo as P  # noqa: E402
 import comandi as C  # noqa: E402
 
+C.imposta_layout("it")  # i testi di prova contengono lettere accentate italiane
+
 CHIAVE = bytes(range(32))
 NONCE = bytes([0xA0 + i for i in range(8)])
 PEZZO = 20  # MTU minima BLE: 20 byte utili per notify
